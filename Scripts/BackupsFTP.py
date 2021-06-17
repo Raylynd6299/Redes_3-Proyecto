@@ -186,3 +186,14 @@ def mover_backups():
         NumRo = back.strip().split("-")[0]
         os.popen(f"mv {path_ftp}{back} {path_backs}{NumRo}")
 
+def BorrarBackup(NomBack):
+    if NomBack == "":
+        return None
+
+    path_back = "~/Backups/"
+    
+    RouterNum = NomBack.strip().split("-")[0]
+
+    os.popen(f"rm -f {path_back}{RouterNum}/{NomBack} ").read()
+
+    return True

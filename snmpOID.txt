@@ -16,4 +16,4 @@ ipInAddrErrors.0
 icmpInErrors.0
 icmpOutErrors.0
 tcpInErrs.0
-
+ipAdEntIfIndex

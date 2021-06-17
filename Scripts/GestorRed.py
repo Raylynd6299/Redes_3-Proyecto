@@ -16,7 +16,10 @@ __status__ = "Production"
 
 ips_routers = None
 routers = None
-Servidores = {"Servidor_1":[["DHCP","FTP","SSH","SNMP_A"],"192.168.226.18"],"Servidor_3":[["DNS","SSH","FTP","SNMP_A"],"192.168.226.26"],"Servidor_2":[["SNMP_NMS","SSH","FTP"],"192.168.226.34"] }
+Servidores = {"Servidor_1":[["DHCP","FTP","SSH","SNMP_A"],"192.168.226.18"],"Servidor_2":[["SNMP_NMS","SSH","FTP"],"192.168.226.34"],"Servidor_3":[["DNS","SSH","FTP","SNMP_A"],"192.168.226.26"] }
+SNMPServidores = [SNMP.Snmp(nombreDevice="Servidor 1", userName="R3SNMP",destHost="192.168.226.18",protAuth="SHA-256",passAuth="RaDa22962"),SNMP.Snmp(nombreDevice="Servidor 2", userName="R3SNMP",destHost="192.168.226.26",protAuth="SHA-256",passAuth="RaDa22962")]
+SNMPRouters = None
+
 
 def Menu():
     print("-----------------------------------------------------------------------------------------------------------------")
@@ -38,11 +41,12 @@ def Menu():
     print("     5) IP Host                                            ")    #Ready
     print("     6) Listar servidores y servicios                      ")    #Ready
     print("     7) Listar versiones de Backups                        ")    #Ready 
-    print("     8) Listar Ip y mascara de interfaces de un router     ") #listar interfaces de un router( interfaz ip mask activo)
-    print("     9) Comprobar que las interfaces esten activas         ")
-    print("    10) Comprobar conectividad de Routers y servidores     ")
-    print("    11) Cambiar destino de alertas                         ") #Agregar identificar Routers y obtener ip de routers, 
-    print("    12) Salir                                              ")
+    print("     8) Borrar Backup                                      ")    #Ready 
+    print("     9) Listar Ip y mascara de interfaces de un router     ") #listar interfaces de un router( interfaz ip mask activo)
+    print("    10) Comprobar que las interfaces esten activas         ")
+    print("    11) Comprobar conectividad de Routers y servidores     ")
+    print("    12) Cambiar destino de alertas                         ") #Agregar identificar Routers y obtener ip de routers, Borrar Backups
+    print("    13) Salir                                              ")
     print("-----------------------------------------------------------------------------------------------------------------")
     
 def Opcion1():
@@ -94,7 +98,7 @@ def Opcion3():
 
     IDRouter = input("Ingrese el identificador del router que va a restaurar: ")
     if routers.get(IDRouter) :
-        backs_F = BackupsFTP.list_backs_roruter(IDRouter)
+        backs_F = BackupsFTP.list_backs_router(IDRouter)
         if backs_F: 
             print(f"Los backups del router {IDRouter} son:")
             for ind,backup in enumerate(backs_F):
@@ -105,7 +109,7 @@ def Opcion3():
                     print("Error la opcion no es valida,fuera de rango")
             except:
                 print("Error la opcion no es valida")
-
+            print(f"Realizando la restauracion del router {IDRouter} con el backup: {backs_F[NameBack]}")
             BackupsFTP.SubirRespaldoRouter(routers[IDRouter],backs_F[NameBack])
         else:
             print(f"No Hay Backups del router {IDRouter}")
@@ -133,8 +137,8 @@ def Opcion6():
         print(f"{servidor}:")
         print(f"    Servicios:")
         for service in Servidores[servidor][0]:
-            print(f"        {service}")
-        print(f"Ip:{Servidores[servidor][1] }")
+            print(f"                {service}")
+        print(f"    Ip:  {Servidores[servidor][1] }")
 
 def Opcion7():
     global ips_routers, routers
@@ -145,7 +149,7 @@ def Opcion7():
         routers = BackupsFTP.Obtener_ID_Router(ips_routers)
 
     for router in routers.keys():
-        backs_F = BackupsFTP.list_backs_roruter(router)
+        backs_F = BackupsFTP.list_backs_router(router)
         if backs_F: 
             print(f"Los backups del router {router} son:")
             for ind,backup in enumerate(backs_F):
@@ -153,32 +157,98 @@ def Opcion7():
         else:
             print(f"El router {router} no tiene backups guardados")
 
+def Opcion8():
+    global ips_routers, routers
+    
+    if ips_routers == None:
+        ips_routers = BackupsFTP.obtener_ips_routers()
+    if routers == None:
+        routers = BackupsFTP.Obtener_ID_Router(ips_routers)
+
+    print("Los Router de la topologia son: \n")
+    for router in routers.keys():
+        print(f"    Router: {router}, IP:{routers[router]}")
+
+    IDRouter = input("Ingrese el identificador del router del que eliminara el backup: ")
+    if routers.get(IDRouter) :
+        backs_F = BackupsFTP.list_backs_router(IDRouter)
+        if backs_F: 
+            print(f"Los backups del router {IDRouter} son:")
+            for ind,backup in enumerate(backs_F):
+                print(f"    {ind}) {backup}")
+            try:
+                NameBack = int(input("Ingrese el numero del backup:") )
+                if 0 > NameBack > len(backs_F):
+                    print("Error la opcion no es valida,fuera de rango")
+            except:
+                print("Error la opcion no es valida")
+            
+            res = BackupsFTP.BorrarBackup(backs_F[NameBack])
+            if res:
+                print("Backup: {backs_F[NameBack]}  eliminado !!")
+            else:
+                print("Error al eliminar el backup")
+        else:
+            print(f"No Hay Backups del router {IDRouter}")
+    else:
+        print(f"No existe el Router designado")
+
+def Opcion9():
+    global SNMPRouters, SNMPServidores
+    global ips_routers, routers
+    
+    if ips_routers == None:
+        ips_routers = BackupsFTP.obtener_ips_routers()
+    if routers == None:
+        routers = BackupsFTP.Obtener_ID_Router(ips_routers)
+    if SNMPRouters == None:
+        SNMPRouters = list()
+        for router in routers.keys():
+            SNMPRouters.append( SNMP.Snmp(nombreDevice=router , userName="R3SNMP",destHost=routers[router],protAuth="SHA",passAuth="RaDa22962") )
+    # infoR1_ifDesc = Router_4.walkSNMP("ifDescr")
+    # infoR1_ifAdminStatus = Router_4.walkSNMP("ifAdminStatus")
+    # infoR1_ipAdEntNetMask = Router_4.walkSNMP("ipAdEntNetMask")
+    # infoR1_ifName = Router_4.walkSNMP("ifName")
+    # infoR1_ipAdEntIfIndex = Router_4.walkSNMP("ipAdEntIfIndex")
 
 if __name__ == "__main__":
     os.popen(f"mkdir -p ~/Backups")
+    while(True):
+        os.system("clear")
+        Menu()
+        try:
+            opcion = int(input("Ingrese la opcion deseada: "))
+        except :
+            print("Error al recibir la opcion seleccionada")
+        
+        if 1 < opcion > 13:
+            print("Opcion invalida")
+        if opcion == 1:
+            Opcion1()
+        elif opcion == 2:
+            Opcion2()
+        elif opcion == 3:
+            Opcion3()
+        elif opcion == 4:
+            Opcion4()
+        elif opcion == 5:
+            Opcion5()
+        elif opcion == 6:
+            Opcion6()
+        elif opcion == 7:
+            Opcion7()
+        elif opcion == 8:
+            Opcion8()
 
-    Menu()
-    try:
-        opcion = int(input("Ingrese la opcion deseada: "))
-    except :
-        print("Error al recibir la opcion seleccionada")
-    
-    if 1 < opcion > 12:
-        print("Opcion invalida")
-    if opcion == 1:
-        Opcion1()
-    elif opcion == 2:
-        Opcion2()
-    elif opcion == 3:
-        Opcion3()
-    elif opcion == 4:
-        Opcion4()
-    elif opcion == 5:
-        Opcion5()
-    elif opcion == 6:
-        Opcion6()
-    elif opcion == 7:
-        Opcion7()
+        elif opcion == 13:
+            break
+
+        try:
+            Op = int(input("Continuar si->1 no->0  :  "))
+            if Op != 1:
+                break
+        except:
+            print("Opcion invalida")
 
     # SNMP.prueba()
     # BackupsFTP.prueba()
