@@ -1,0 +1,15 @@
+subnet 192.168.226.16 netmask 255.255.255.248 {
+	range 192.168.226.19 192.168.226.22;
+	option routers 192.168.226.17;
+	option domain-name-servers 8.8.8.8;
+}
+subnet 192.168.226.0 netmask 255.255.255.248 {
+	range 192.168.226.2 192.168.226.6;
+	option routers 192.168.226.1;
+	option domain-name-servers 8.8.8.8;
+}
+subnet 192.168.226.8 netmask 255.255.255.248 {
+	range 192.168.226.10 192.168.226.14;
+	option routers 192.168.226.9;
+	option domain-name-servers 8.8.8.8;
+}
