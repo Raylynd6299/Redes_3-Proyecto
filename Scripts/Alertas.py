@@ -21,3 +21,5 @@ def EnviarAlerta(Mensaje, ParaUsario, TipoAlerta):
     server.quit()
 
     print ( f"Ocurrio una alerta de tipo:{TipoAlerta}") 
+
+EnviarAlerta("Hola","rayescomed@gmail.com ","llego")
