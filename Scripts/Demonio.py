@@ -149,18 +149,18 @@ def Demonio_R(**Objetivos):
         for obj in Objetivos.keys():
             erroresmte = Objetivos[obj].getSNMP("ipInAddrErrors.0")
             if erroresmte:
-                mteEventFailures.append(int(erroresmte.strip().split(" ")[3]))
+                ipInAddrErrors.append(int(erroresmte.strip().split(" ")[3]))
             else: 
-                mteEventFailures.append(0)
+                ipInAddrErrors.append(0)
     else:
         indice = 0
         for obj in Objetivos.keys():
             erroresmte = Objetivos[obj].getSNMP("ipInAddrErrors.0")
             if erroresmte:
                 errorAct = int(erroresmte.strip().split(" ")[3])
-                if mteEventFailures[indice] < errorAct and errorAct > 15:
+                if ipInAddrErrors[indice] < errorAct and errorAct > 15:
                     Alertas.EnviarAlerta(f"Se estan presentando errores de packetes en su destion posible intento de ataque en el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Errores en destino, posible ataque")  
-                    mteEventFailures[indice] = errorAct
+                    ipInAddrErrors[indice] = errorAct
                     indice +=1
             else: 
                 indice += 1
@@ -272,7 +272,6 @@ def Demonio_R(**Objetivos):
     #Errores de entrada UDP 
     print(f"udpInErrs : \n{udpInErrs}")
     #Pocentaje de uso del CPU
-    cpmCPUTotal1minRev_Count = []
     print(f"cpmCPUTotal1minRev : \n{cpmCPUTotal1minRev_Count}")
 
 def Demonio_S(**Objetivos):
