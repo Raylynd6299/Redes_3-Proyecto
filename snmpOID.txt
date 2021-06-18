@@ -11,9 +11,10 @@ ipCidrRouteStatus		// Ver habilitacion de tabla de ruteo
 sysDescr
 sysName
 ifInErrors
-ipInHdrErrors.0
-ipInAddrErrors.0
-icmpInErrors.0
-icmpOutErrors.0
-tcpInErrs.0
+ipInHdrErrors
+ipInAddrErrors
+icmpInErrors
+icmpOutErrors
+tcpInErrs
+udpInErrors
 ipAdEntIfIndex

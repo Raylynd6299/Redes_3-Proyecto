@@ -1,0 +1,19 @@
+		---------------------
+		-- Administración. --
+		---------------------
+
+ifAdminstatus
+ipAdEntAddr 		-> Si cambian hay que avisar.
+mteEventFailures 	-> Ver que significa porque no está seguro de qué significa.
+ipCidrRouteStatus 	-> Comprobar que todas están activas. 
+ifInErrors
+ipInHdrErrors  	-> Checar que pedo. 
+ipInAddrErrors		-> Checar que pedo también.
+icmpInErrors
+icmpOutErrors
+tcpInErrs
+udpInErrs
+
+
+Función para los servidores.
+
