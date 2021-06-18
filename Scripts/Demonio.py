@@ -212,7 +212,7 @@ def Demonio_R(**Objetivos):
 
     if not udpInErrs :
         for obj in Objetivos.keys():
-            erroresmte = Objetivos[obj].getSNMP("udpInErrs.0")
+            erroresmte = Objetivos[obj].getSNMP("udpInErrors.0")
             if erroresmte:
                 udpInErrs.append(int(erroresmte.strip().split(" ")[3]))
             else: 
@@ -220,7 +220,7 @@ def Demonio_R(**Objetivos):
     else:
         indice = 0
         for obj in Objetivos.keys():
-            erroresmte = Objetivos[obj].getSNMP("udpInErrs.0")
+            erroresmte = Objetivos[obj].getSNMP("udpInErrors.0")
             catidad = udpInErrs[indice] +15
             if erroresmte:
                 errorAct = int(erroresmte.strip().split(" ")[3])
