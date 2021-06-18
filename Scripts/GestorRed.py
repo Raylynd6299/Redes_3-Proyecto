@@ -286,20 +286,23 @@ def Opcion12():
         EmailFile.seek(0,0)
         email = EmailFile.read().strip()
     if email == "":
-        emailNew = input("Ingrese el email al que se enviaran las alertas")
+        emailNew = input("Ingrese el email al que se enviaran las alertas:  ")
     else:
         print(f"El email al que se envian las advertencias actualmente es: {email}")
         emailNew = input("Ingrese el email al que se enviaran las alertas")
 
-    res = re.search(r"[a-zA-Z0-9\._]+@[a-zA-Z\.]+\.[a-zA-Z]+",emailNew)
-    
-    if res != None:
-        print("Error la cadena ingresada no es un email")
-    else:
-        with open("/home/warning.config","w") as EmailFile:
-            EmailFile.write(emailNew)
+    if emailNew:
+        res = re.search(r"[a-zA-Z0-9\._]+@[a-zA-Z\.]+\.[a-zA-Z]+",emailNew)
+        
+        if res != None:
+            print("Error la cadena ingresada no es un email")
+        else:
+            with open("/home/warning.config","w") as EmailFile:
+                EmailFile.write(emailNew)
 
-    print("Email modificado con exito")
+        print("Email modificado con exito")
+    else:
+        print("Error al recibir el email")
 
 if __name__ == "__main__":
     os.popen(f"mkdir -p ~/Backups")
@@ -308,19 +311,18 @@ if __name__ == "__main__":
         EmailFile.seek(0,0)
         email = EmailFile.read().strip()
     if email == "":
-        emailNew = input("Ingrese el email al que se enviaran las alertas")
+        emailNew = input("Ingrese el email al que se enviaran las alertas:  ")
+        res = re.search(r"[a-zA-Z0-9\._]+@[a-zA-Z\.]+\.[a-zA-Z]+",emailNew)
+        if res != None:
+            print("Error la cadena ingresada no es un email")
+        else:
+            with open("/home/warning.config","w") as EmailFile:
+                EmailFile.write(emailNew)
+        print("Email registrado con exito")
     else:
         print(f"El email al que se envian las advertencias actualmente es: {email}")
     
-    res = re.search(r"[a-zA-Z0-9\._]+@[a-zA-Z\.]+\.[a-zA-Z]+",emailNew)
-    
-    if res != None:
-        print("Error la cadena ingresada no es un email")
-    else:
-        with open("/home/warning.config","w") as EmailFile:
-            EmailFile.write(emailNew)
-
-    print("Email registrado con exito")
+   
 
     while(True):
         os.system("clear")
