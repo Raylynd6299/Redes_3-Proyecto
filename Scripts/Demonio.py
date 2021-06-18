@@ -243,7 +243,7 @@ def Demonio_R(**Objetivos):
         else:
             indice = 0
             for obj in Objetivos.keys():
-                erroresmte = Objetivos[obj].getSNMP("udpInErrs.0")
+                erroresmte = Objetivos[obj].getSNMP(f"{cpmCPUTotal1minRev}.1")
                 if erroresmte:
                     errorAct = int(erroresmte.strip().split(" ")[3])
                     if cpmCPUTotal1minRev_Count[indice] < errorAct:
