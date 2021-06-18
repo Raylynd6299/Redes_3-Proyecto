@@ -53,7 +53,7 @@ def Demonio_R(**Objetivos):
             for obj in Objetivos.keys():
                 EstadoInicialINT = Objetivos[obj].walkSNMP("ifAdminstatus")
                 estados = limpiar(EstadoInicialINT)
-                for interfaceEST in range(estados):
+                for interfaceEST in range(len(estados)):
                     if estados[interfaceEST] != ifAdminstatus[Objetivos[obj].NombreDevice][interfaceEST] :
                         if "up" in ifAdminstatus[Objetivos[obj].NombreDevice][interfaceEST]:
                             NameInt = Objetivos[obj].getSNMP(f"ifDescr.{interfaceEST+1}")
@@ -122,7 +122,7 @@ def Demonio_R(**Objetivos):
             for obj in Objetivos.keys():
                 estadosTR = Objetivos[obj].walkSNMP("ipCidrRouteStatus")
                 estados = limpiar(estadosTR)
-                for interfaceEST in range(estados):
+                for interfaceEST in range(len(estados)):
                     if estados[interfaceEST] != ipCidrRouteStatus[Objetivos[obj].NombreDevice][interfaceEST] :
                         if "active" in ipCidrRouteStatus[Objetivos[obj].NombreDevice][interfaceEST]:
                             NameInt = Objetivos[obj].getSNMP(f"ipCidrRouteStatus.{interfaceEST+1}")
@@ -138,7 +138,7 @@ def Demonio_R(**Objetivos):
             for obj in Objetivos.keys():
                 EstadoInicialINT = Objetivos[obj].walkSNMP("ifInErrors")
                 estados = limpiar(EstadoInicialINT)
-                for interfaceEST in range(estados):
+                for interfaceEST in range(len(estados)):
                     if estados[interfaceEST] != ifInErrors[Objetivos[obj].NombreDevice][interfaceEST] :
                         if int(estados[interfaceEST]) > 255:
                             NameInt = Objetivos[obj].getSNMP(f"ifDescr.{interfaceEST+1}")
@@ -274,7 +274,7 @@ def Demonio_R(**Objetivos):
         print(f"udpInErrs : \n{udpInErrs}")
         #Pocentaje de uso del CPU
         print(f"cpmCPUTotal1minRev : \n{cpmCPUTotal1minRev_Count}")
-        time.sleep(180)
+        time.sleep(60)
 
 def Demonio_S(**Objetivos):
 
