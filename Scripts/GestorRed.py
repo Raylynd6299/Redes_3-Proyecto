@@ -296,16 +296,19 @@ def Opcion12():
         
         if res == None:
             print("Error la cadena ingresada no es un email")
+            return ""
         else:
             with open("/home/warning.config","w") as EmailFile:
                 EmailFile.write(emailNew)
             print("Email modificado con exito")
+            return emailNew
     else:
         print("Error al recibir el email")
+        return ""
 
 if __name__ == "__main__":
     os.popen(f"mkdir -p ~/Backups")
-
+    
     with open("/home/warning.config","a+") as EmailFile:
         EmailFile.seek(0,0)
         email = EmailFile.read().strip()
@@ -322,8 +325,6 @@ if __name__ == "__main__":
     else:
         print(f"El email al que se envian las advertencias actualmente es: {email}")
     
-   
-
     while(True):
         opcion = 0
         os.system("clear")
@@ -359,7 +360,9 @@ if __name__ == "__main__":
         elif opcion == 11:
             Opcion11()
         elif opcion == 12:
-            Opcion12()    
+            email_R = Opcion12()
+            if email_R != "":
+                email = email_R
         elif opcion == 13:
             break
 
