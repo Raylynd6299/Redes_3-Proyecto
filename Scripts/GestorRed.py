@@ -237,7 +237,7 @@ def Opcion10():
             SNMPRouters.append( SNMP.Snmp(nombreDevice=router , userName="R3SNMP",destHost=routers[router],protAuth="SHA",passAuth="RaDa22962") )
 
 
-    print("Los Router de la topologia son: \n")
+    print("Los Router de la topologia son: ")
     for router in routers.keys():
         print(f"    Router: {router}, IP:{routers[router]}")
 
@@ -270,14 +270,14 @@ def Opcion11():
     for SNMPServidor in  SNMPServidores:
         info_S = SNMPServidor.getSNMP()
         if info_S:
-            print(f"El {SNMPServidor.NombreDevice} : {SNMPServidor.DestHost} se encuentr activo ")
+            print(f"El {SNMPServidor.NombreDevice} : {SNMPServidor.DestHost} se encuentra activo ")
         else:
             print(f"El {SNMPServidor.NombreDevice} esta inactivo")
     
     for SNMPRouter in SNMPRouters:
         info_R = SNMPRouter.getSNMP("sysName")
         if info_R:
-            print(f"El {SNMPRouter.NombreDevice} : {SNMPRouter.DestHost} se encuentr activo ")
+            print(f"El {SNMPRouter.NombreDevice} : {SNMPRouter.DestHost} se encuentra activo ")
         else:
             print(f"El {SNMPRouter.NombreDevice} esta inactivo")
 
@@ -289,18 +289,17 @@ def Opcion12():
         emailNew = input("Ingrese el email al que se enviaran las alertas:  ")
     else:
         print(f"El email al que se envian las advertencias actualmente es: {email}")
-        emailNew = input("Ingrese el email al que se enviaran las alertas")
+        emailNew = input("Ingrese el email al que se enviaran las alertas:  ")
 
     if emailNew:
         res = re.search(r"[a-zA-Z0-9\._]+@[a-zA-Z\.]+\.[a-zA-Z]+",emailNew)
         
-        if res != None:
+        if res == None:
             print("Error la cadena ingresada no es un email")
         else:
             with open("/home/warning.config","w") as EmailFile:
                 EmailFile.write(emailNew)
-
-        print("Email modificado con exito")
+            print("Email modificado con exito")
     else:
         print("Error al recibir el email")
 
@@ -313,12 +312,13 @@ if __name__ == "__main__":
     if email == "":
         emailNew = input("Ingrese el email al que se enviaran las alertas:  ")
         res = re.search(r"[a-zA-Z0-9\._]+@[a-zA-Z\.]+\.[a-zA-Z]+",emailNew)
-        if res != None:
+        if res == None:
             print("Error la cadena ingresada no es un email")
         else:
             with open("/home/warning.config","w") as EmailFile:
                 EmailFile.write(emailNew)
-        print("Email registrado con exito")
+            print("Email registrado con exito")
+            email = emailNew
     else:
         print(f"El email al que se envian las advertencias actualmente es: {email}")
     
@@ -327,6 +327,7 @@ if __name__ == "__main__":
     while(True):
         opcion = 0
         os.system("clear")
+        print(f"El email al que se envian las advertencias es: {email} !!")
         Menu()
         try:
             opcion = int(input("Ingrese la opcion deseada: "))

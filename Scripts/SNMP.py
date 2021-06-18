@@ -162,10 +162,10 @@ def InfoActividadRouter(SNMPRouter = None):
     else:
         print("Error al obtener informacion de las interfaces")
         return False
-    
+
     print(f"Router: {SNMPRouter.NombreDevice}")
     for interface in INFO_ROUTER_SNMP:
-        if "up" in interfaces[1]:    
+        if "up" in interface[1]:    
             if len(interface) == 4:
                 cadena = f"          {interface[0]:16}   {interface[1]:7}   {interface[2]:15} {interface[3]:16}"
             if len(interface) == 2:
