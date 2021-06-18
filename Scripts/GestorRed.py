@@ -206,7 +206,7 @@ def Opcion9():
             SNMPRouters.append( SNMP.Snmp(nombreDevice=router , userName="R3SNMP",destHost=routers[router],protAuth="SHA",passAuth="RaDa22962") )
 
 
-    print("Los Router de la topologia son: \n")
+    print("Los Router de la topologia son: ")
     for router in routers.keys():
         print(f"    Router: {router}, IP:{routers[router]}")
 
@@ -325,6 +325,7 @@ if __name__ == "__main__":
    
 
     while(True):
+        opcion = 0
         os.system("clear")
         Menu()
         try:
@@ -367,3 +368,4 @@ if __name__ == "__main__":
                 break
         except:
             print("Opcion invalida")
+        opcion = 0
