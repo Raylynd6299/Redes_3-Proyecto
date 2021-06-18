@@ -70,7 +70,7 @@ def Demonio_R(**Objetivos):
                 ipsRou = Objetivos[obj].walkSNMP("ipAdEntAddr")
                 ipsR = limpiar(ipsRou)
                 if len(ipAdEntAddr[Objetivos[obj].NombreDevice]) == len(ipsR):
-                    for ip in range(ipsR):
+                    for ip in range(len(ipsR)):
                         if ipsR[ip] != ipAdEntAddr[Objetivos[obj].NombreDevice][ip] :
                             Alertas.EnviarAlerta(f"La ip {ipAdEntAddr[Objetivos[obj].NombreDevice][ip]} cambio a {ipsR[ip]} en el router {Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"cambio de ip en router")  
                             ipAdEntAddr[Objetivos[obj].NombreDevice][ip] = ipsR[ip]
