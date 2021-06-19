@@ -9,7 +9,6 @@ import threading
 cpmCPUTotal1minRev = ".1.3.6.1.4.1.9.9.109.1.1.1.1.7" #  0 >= V <= 100 porcentual
 cpmCPUTotal5secRev = ".1.3.6.1.4.1.9.9.109.1.1.1.1.6"
 
-SNMPServidores = [SNMP.Snmp(nombreDevice="Servidor 1", userName="R3SNMP",destHost="192.168.226.18",protAuth="SHA-256",passAuth="RaDa22962"),SNMP.Snmp(nombreDevice="Servidor 2", userName="R3SNMP",destHost="192.168.226.26",protAuth="SHA-256",passAuth="RaDa22962")]
 SNMPRouters = None
 ips_routers = None
 routers = None
@@ -58,7 +57,7 @@ def Demonio_R(**Objetivos):
                         if "up" in ifAdminstatus[Objetivos[obj].NombreDevice][interfaceEST]:
                             NameInt = Objetivos[obj].getSNMP(f"ifDescr.{interfaceEST+1}")
                             NameInt = NameInt.strip().split(" ")[3]
-                            Alertas.EnviarAlerta(f"La interface {NameInt} se acaba de caer en el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de Interface")  
+                            Alertas.EnviarAlerta(f"La interface {NameInt} se acaba de caer. \nEn el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de Interface")  
                         ifAdminstatus[Objetivos[obj].NombreDevice][interfaceEST] = estados[interfaceEST]
         
         if not ipAdEntAddr:
@@ -72,7 +71,7 @@ def Demonio_R(**Objetivos):
                 if len(ipAdEntAddr[Objetivos[obj].NombreDevice]) == len(ipsR):
                     for ip in range(len(ipsR)):
                         if ipsR[ip] != ipAdEntAddr[Objetivos[obj].NombreDevice][ip] :
-                            Alertas.EnviarAlerta(f"La ip {ipAdEntAddr[Objetivos[obj].NombreDevice][ip]} cambio a {ipsR[ip]} en el router {Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"cambio de ip en router")  
+                            Alertas.EnviarAlerta(f"La ip {ipAdEntAddr[Objetivos[obj].NombreDevice][ip]} cambio a {ipsR[ip]}, en el router {Objetivos[obj].NombreDevice} con ip:{Objetivos[obj].DestHost}",Email,"cambio de ip en router")  
                             ipAdEntAddr[Objetivos[obj].NombreDevice][ip] = ipsR[ip]
                 else:
                     numIP = 0
@@ -83,12 +82,12 @@ def Demonio_R(**Objetivos):
                         else:
                             diferentes.append(ip)
                     if numIP == len(ipAdEntAddr[Objetivos[obj].NombreDevice]): # Se agregaron ips
-                        mensaje = f"Se agregaron las siguientes ips al router {Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}: \n"
+                        mensaje = f"Se agregaron las siguientes ips al router {Objetivos[obj].NombreDevice}->ip:{Objetivos[obj].DestHost}: \n"
                         for nueva in diferentes:
                             mensaje += f"       {nueva} \n"
                             Alertas.EnviarAlerta(mensaje,Email,"Se agregaron ips en router")  
                     elif numIP < len(ipAdEntAddr[Objetivos[obj].NombreDevice]): # Se eliminaron ips
-                        mensaje = f"Se eliminaron ips al router {Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost} y se agregaron: \n"
+                        mensaje = f"Se eliminaron ips al router {Objetivos[obj].NombreDevice}->ip:{Objetivos[obj].DestHost} y se agregaron: \n"
                         for nueva in diferentes:
                             mensaje += f"       {nueva} \n"
                             Alertas.EnviarAlerta(mensaje,Email,"Se eliminaron ips existentes en router")  
@@ -276,14 +275,8 @@ def Demonio_R(**Objetivos):
         print(f"cpmCPUTotal1minRev : \n{cpmCPUTotal1minRev_Count}")
         time.sleep(60)
 
-def Demonio_S(**Objetivos):
-
-    for obj in Objetivos.keys():
-        print(f"{obj}:{Objetivos[obj].DestHost}") 
-
-
 def main():
-    global SNMPRouters, SNMPServidores, ips_routers, routers, Email
+    global SNMPRouters, ips_routers, routers, Email
     
     ips_routers = BackupsFTP.obtener_ips_routers()
     routers = BackupsFTP.Obtener_ID_Router(ips_routers)
@@ -299,12 +292,6 @@ def main():
 
     NUM_T = 1
     Hilos = []
-    Hilos.append(threading.Thread(      target=Demonio_S,
-                                        kwargs={
-                                                SNMPServidores[0].NombreDevice:SNMPServidores[0],
-                                                SNMPServidores[1].NombreDevice:SNMPServidores[1]
-                                                }
-                                 ))
     for num_T in range(NUM_T):
         Hilos.append(threading.Thread(  target=Demonio_R,
                                         kwargs={
