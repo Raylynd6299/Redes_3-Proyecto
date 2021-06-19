@@ -43,6 +43,9 @@ def Demonio_R(**Objetivos):
     # for obj in Objetivos.keys():
     #     print(f"{obj}:{Objetivos[obj].DestHost}") 
     while (True):
+        with open("/home/warning.config","a+") as EmailFile:
+            EmailFile.seek(0,0)
+            Email = EmailFile.read().strip()
 
         if not ifAdminstatus:
             for obj in Objetivos.keys():
@@ -273,7 +276,7 @@ def Demonio_R(**Objetivos):
         print(f"udpInErrs : \n{udpInErrs}")
         #Pocentaje de uso del CPU
         print(f"cpmCPUTotal1minRev : \n{cpmCPUTotal1minRev_Count}")
-        time.sleep(60)
+        time.sleep(30)
 
 def main():
     global SNMPRouters, ips_routers, routers, Email
@@ -290,7 +293,7 @@ def main():
             email = EmailFile.read().strip()
     Email = email
 
-    NUM_T = 1
+    NUM_T = 3
     Hilos = []
     for num_T in range(NUM_T):
         Hilos.append(threading.Thread(  target=Demonio_R,
