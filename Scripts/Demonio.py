@@ -50,63 +50,78 @@ def Demonio_R(**Objetivos):
         if not ifAdminstatus:
             for obj in Objetivos.keys():
                 EstadoInicialINT = Objetivos[obj].walkSNMP("ifAdminstatus")
-                ifAdminstatus[Objetivos[obj].NombreDevice] = limpiar(EstadoInicialINT)
+                if EstadoInicialINT != '':
+                    ifAdminstatus[Objetivos[obj].NombreDevice] = limpiar(EstadoInicialINT)
+                else:
+                    Alertas.EnviarAlerta(f"Se callo la comunicacion con el router {Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de comunicacion")  
         else:
             for obj in Objetivos.keys():
                 EstadoInicialINT = Objetivos[obj].walkSNMP("ifAdminstatus")
-                estados = limpiar(EstadoInicialINT)
-                for interfaceEST in range(len(estados)):
-                    if estados[interfaceEST] != ifAdminstatus[Objetivos[obj].NombreDevice][interfaceEST] :
-                        if "up" in ifAdminstatus[Objetivos[obj].NombreDevice][interfaceEST]:
-                            NameInt = Objetivos[obj].getSNMP(f"ifDescr.{interfaceEST+1}")
-                            NameInt = NameInt.strip().split(" ")[3]
-                            Alertas.EnviarAlerta(f"La interface {NameInt} se acaba de caer. \nEn el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de Interface")  
-                        ifAdminstatus[Objetivos[obj].NombreDevice][interfaceEST] = estados[interfaceEST]
+                if EstadoInicialINT != '':
+                    estados = limpiar(EstadoInicialINT)
+                    for interfaceEST in range(len(estados)):
+                        if estados[interfaceEST] != ifAdminstatus[Objetivos[obj].NombreDevice][interfaceEST] :
+                            if "up" in ifAdminstatus[Objetivos[obj].NombreDevice][interfaceEST]:
+                                NameInt = Objetivos[obj].getSNMP(f"ifDescr.{interfaceEST+1}")
+                                NameInt = NameInt.strip().split(" ")[3]
+                                Alertas.EnviarAlerta(f"La interface {NameInt} se acaba de caer. \nEn el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de Interface")  
+                            ifAdminstatus[Objetivos[obj].NombreDevice][interfaceEST] = estados[interfaceEST]
+                else:
+                    Alertas.EnviarAlerta(f"Se callo la comunicacion con el router {Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de comunicacion")  
+                
         
         if not ipAdEntAddr:
             for obj in Objetivos.keys():
                 ipsRou = Objetivos[obj].walkSNMP("ipAdEntAddr")
-                ipAdEntAddr[Objetivos[obj].NombreDevice] = limpiar(ipsRou)
+                if ipsRou != '':
+                    ipAdEntAddr[Objetivos[obj].NombreDevice] = limpiar(ipsRou)
+                else:
+                    Alertas.EnviarAlerta(f"Se callo la comunicacion con el router {Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de comunicacion")  
         else:
             for obj in Objetivos.keys():
                 ipsRou = Objetivos[obj].walkSNMP("ipAdEntAddr")
-                ipsR = limpiar(ipsRou)
-                if len(ipAdEntAddr[Objetivos[obj].NombreDevice]) == len(ipsR):
-                    for ip in range(len(ipsR)):
-                        if ipsR[ip] != ipAdEntAddr[Objetivos[obj].NombreDevice][ip] :
-                            Alertas.EnviarAlerta(f"La ip {ipAdEntAddr[Objetivos[obj].NombreDevice][ip]} cambio a {ipsR[ip]}, en el router {Objetivos[obj].NombreDevice} con ip:{Objetivos[obj].DestHost}",Email,"cambio de ip en router")  
-                            ipAdEntAddr[Objetivos[obj].NombreDevice][ip] = ipsR[ip]
+                if ipsRou != '':
+                    ipsR = limpiar(ipsRou)
+                    if len(ipAdEntAddr[Objetivos[obj].NombreDevice]) == len(ipsR):
+                        for ip in range(len(ipsR)):
+                            if ipsR[ip] != ipAdEntAddr[Objetivos[obj].NombreDevice][ip] :
+                                Alertas.EnviarAlerta(f"La ip {ipAdEntAddr[Objetivos[obj].NombreDevice][ip]} cambio a {ipsR[ip]}, en el router {Objetivos[obj].NombreDevice} con ip:{Objetivos[obj].DestHost}",Email,"cambio de ip en router")  
+                                ipAdEntAddr[Objetivos[obj].NombreDevice][ip] = ipsR[ip]
+                    else:
+                        numIP = 0
+                        diferentes = []
+                        for ip in ipsR:
+                            if ip in ipAdEntAddr[Objetivos[obj].NombreDevice]:
+                                numIP += 1
+                            else:
+                                diferentes.append(ip)
+                        if numIP == len(ipAdEntAddr[Objetivos[obj].NombreDevice]): # Se agregaron ips
+                            mensaje = f"Se agregaron las siguientes ips al router {Objetivos[obj].NombreDevice}->ip:{Objetivos[obj].DestHost}: \n"
+                            for nueva in diferentes:
+                                mensaje += f"       {nueva} \n"
+                                Alertas.EnviarAlerta(mensaje,Email,"Se agregaron ips en router")  
+                        elif numIP < len(ipAdEntAddr[Objetivos[obj].NombreDevice]): # Se eliminaron ips
+                            mensaje = f"Se eliminaron ips al router {Objetivos[obj].NombreDevice}->ip:{Objetivos[obj].DestHost} y se agregaron: \n"
+                            for nueva in diferentes:
+                                mensaje += f"       {nueva} \n"
+                                Alertas.EnviarAlerta(mensaje,Email,"Se eliminaron ips existentes en router")  
                 else:
-                    numIP = 0
-                    diferentes = []
-                    for ip in ipsR:
-                        if ip in ipAdEntAddr[Objetivos[obj].NombreDevice]:
-                            numIP += 1
-                        else:
-                            diferentes.append(ip)
-                    if numIP == len(ipAdEntAddr[Objetivos[obj].NombreDevice]): # Se agregaron ips
-                        mensaje = f"Se agregaron las siguientes ips al router {Objetivos[obj].NombreDevice}->ip:{Objetivos[obj].DestHost}: \n"
-                        for nueva in diferentes:
-                            mensaje += f"       {nueva} \n"
-                            Alertas.EnviarAlerta(mensaje,Email,"Se agregaron ips en router")  
-                    elif numIP < len(ipAdEntAddr[Objetivos[obj].NombreDevice]): # Se eliminaron ips
-                        mensaje = f"Se eliminaron ips al router {Objetivos[obj].NombreDevice}->ip:{Objetivos[obj].DestHost} y se agregaron: \n"
-                        for nueva in diferentes:
-                            mensaje += f"       {nueva} \n"
-                            Alertas.EnviarAlerta(mensaje,Email,"Se eliminaron ips existentes en router")  
+                    Alertas.EnviarAlerta(f"Se callo la comunicacion con el router {Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de comunicacion")  
+
+                
         
         if not mteEventFailures :
             for obj in Objetivos.keys():
                 erroresmte = Objetivos[obj].getSNMP("mteEventFailures.0")
-                if erroresmte:
+                if erroresmte != '':
                     mteEventFailures.append(int(erroresmte.strip().split(" ")[3]))
                 else: 
-                    mteEventFailures.append(0)
+                    Alertas.EnviarAlerta(f"Se callo la comunicacion con el router {Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de comunicacion")  
         else:
             indice = 0
             for obj in Objetivos.keys():
                 erroresmte = Objetivos[obj].getSNMP("mteEventFailures.0")
-                if erroresmte:
+                if erroresmte != '':
                     errorAct = int(erroresmte.strip().split(" ")[3])
                     if mteEventFailures[indice] < errorAct:
                         Alertas.EnviarAlerta(f"Se error en evento del router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"error de evento")  
@@ -119,34 +134,47 @@ def Demonio_R(**Objetivos):
         if not ipCidrRouteStatus:
             for obj in Objetivos.keys():
                 estadosTR = Objetivos[obj].walkSNMP("ipCidrRouteStatus")
-                ipCidrRouteStatus[Objetivos[obj].NombreDevice] = limpiar(estadosTR)
+                if estadosTR != '':
+                    ipCidrRouteStatus[Objetivos[obj].NombreDevice] = limpiar(estadosTR)
+                else:
+                    Alertas.EnviarAlerta(f"Se callo la comunicacion con el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de comunicacion")  
         else:
             for obj in Objetivos.keys():
                 estadosTR = Objetivos[obj].walkSNMP("ipCidrRouteStatus")
-                estados = limpiar(estadosTR)
-                for interfaceEST in range(len(estados)):
-                    if estados[interfaceEST] != ipCidrRouteStatus[Objetivos[obj].NombreDevice][interfaceEST] :
-                        if "active" in ipCidrRouteStatus[Objetivos[obj].NombreDevice][interfaceEST]:
-                            NameInt = Objetivos[obj].getSNMP(f"ipCidrRouteStatus.{interfaceEST+1}")
-                            NameInt = NameInt.strip()
-                            Alertas.EnviarAlerta(f"Se acaba de caer la conexion en el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}\n conexion perdida es {NameInt}",Email,"Caida de coneccion")  
-                        ipCidrRouteStatus[Objetivos[obj].NombreDevice][interfaceEST] = estados[interfaceEST]
-
+                if estadosTR != '':
+                    estados = limpiar(estadosTR)
+                    for interfaceEST in range(len(estados)):
+                        if estados[interfaceEST] != ipCidrRouteStatus[Objetivos[obj].NombreDevice][interfaceEST] :
+                            if "active" in ipCidrRouteStatus[Objetivos[obj].NombreDevice][interfaceEST]:
+                                NameInt = Objetivos[obj].getSNMP(f"ipCidrRouteStatus.{interfaceEST+1}")
+                                NameInt = NameInt.strip()
+                                Alertas.EnviarAlerta(f"Se acaba de caer la conexion en el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}\n conexion perdida es {NameInt}",Email,"Caida de coneccion")  
+                            ipCidrRouteStatus[Objetivos[obj].NombreDevice][interfaceEST] = estados[interfaceEST]
+                else:
+                    Alertas.EnviarAlerta(f"Se callo la comunicacion con el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de comunicacion")  
+                
         if not ifInErrors:
             for obj in Objetivos.keys():
                 EstadoInicialINT = Objetivos[obj].walkSNMP("ifInErrors")
-                ifInErrors[Objetivos[obj].NombreDevice] = limpiar(EstadoInicialINT)
+                if EstadoInicialINT != '':
+                    ifInErrors[Objetivos[obj].NombreDevice] = limpiar(EstadoInicialINT)
+                else:
+                    Alertas.EnviarAlerta(f"Se callo la comunicacion con el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de comunicacion")  
         else:
             for obj in Objetivos.keys():
                 EstadoInicialINT = Objetivos[obj].walkSNMP("ifInErrors")
-                estados = limpiar(EstadoInicialINT)
-                for interfaceEST in range(len(estados)):
-                    if estados[interfaceEST] != ifInErrors[Objetivos[obj].NombreDevice][interfaceEST] :
-                        if int(estados[interfaceEST]) > 255:
-                            NameInt = Objetivos[obj].getSNMP(f"ifDescr.{interfaceEST+1}")
-                            NameInt = NameInt.strip().split(" ")[3]
-                            Alertas.EnviarAlerta(f"La interface {NameInt} ah recibido mas de 255 errores en el router {Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Errores en al checar paquetes en interfaz")  
-                        ifAdminstatus[Objetivos[obj].NombreDevice][interfaceEST] = estados[interfaceEST]
+                if EstadoInicialINT != '':
+                    estados = limpiar(EstadoInicialINT)
+                    for interfaceEST in range(len(estados)):
+                        if estados[interfaceEST] != ifInErrors[Objetivos[obj].NombreDevice][interfaceEST] :
+                            if int(estados[interfaceEST]) > 255:
+                                NameInt = Objetivos[obj].getSNMP(f"ifDescr.{interfaceEST+1}")
+                                NameInt = NameInt.strip().split(" ")[3]
+                                Alertas.EnviarAlerta(f"La interface {NameInt} ah recibido mas de 255 errores en el router {Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Errores en al checar paquetes en interfaz")  
+                            ifAdminstatus[Objetivos[obj].NombreDevice][interfaceEST] = estados[interfaceEST]
+                else:
+                    Alertas.EnviarAlerta(f"Se callo la comunicacion con el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de comunicacion")  
+                
 
         if not ipInAddrErrors :
             for obj in Objetivos.keys():
@@ -154,7 +182,7 @@ def Demonio_R(**Objetivos):
                 if erroresmte:
                     ipInAddrErrors.append(int(erroresmte.strip().split(" ")[3]))
                 else: 
-                    ipInAddrErrors.append(0)
+                    Alertas.EnviarAlerta(f"Se callo la comunicacion con el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de comunicacion")
         else:
             indice = 0
             for obj in Objetivos.keys():
@@ -175,7 +203,7 @@ def Demonio_R(**Objetivos):
                 if erroresmte:
                     icmpInErrors.append(int(erroresmte.strip().split(" ")[3]))
                 else: 
-                    icmpInErrors.append(0)
+                    Alertas.EnviarAlerta(f"Se callo la comunicacion con el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de comunicacion")
         else:
             indice = 0
             for obj in Objetivos.keys():
@@ -197,7 +225,7 @@ def Demonio_R(**Objetivos):
                 if erroresmte:
                     tcpInErrs.append(int(erroresmte.strip().split(" ")[3]))
                 else: 
-                    tcpInErrs.append(0)
+                    Alertas.EnviarAlerta(f"Se callo la comunicacion con el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de comunicacion")
         else:
             indice = 0
             for obj in Objetivos.keys():
@@ -219,7 +247,7 @@ def Demonio_R(**Objetivos):
                 if erroresmte:
                     udpInErrs.append(int(erroresmte.strip().split(" ")[3]))
                 else: 
-                    udpInErrs.append(0)
+                    Alertas.EnviarAlerta(f"Se callo la comunicacion con el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de comunicacion")
         else:
             indice = 0
             for obj in Objetivos.keys():
@@ -241,7 +269,7 @@ def Demonio_R(**Objetivos):
                 if erroresmte:
                     cpmCPUTotal1minRev_Count.append(int(erroresmte.strip().split(" ")[3]))
                 else: 
-                    cpmCPUTotal1minRev_Count.append(0)
+                    Alertas.EnviarAlerta(f"Se callo la comunicacion con el router{Objetivos[obj].NombreDevice}, con ip:{Objetivos[obj].DestHost}",Email,"Caida de comunicacion")
         else:
             indice = 0
             for obj in Objetivos.keys():
