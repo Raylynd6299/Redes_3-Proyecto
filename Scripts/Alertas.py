@@ -4,7 +4,9 @@ import smtplib
  
 msg = MIMEMultipart()
  
-def EnviarAlerta(Mensaje = "", ParaUsario="", TipoAlerta=""):
+def EnviarAlerta(Mensaje = "", ParaUsario = "", TipoAlerta = ""):
+    global msg
+    message = " "
     message = Mensaje
 
     # setup the parameters of the message
