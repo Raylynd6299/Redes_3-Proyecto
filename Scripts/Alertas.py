@@ -2,10 +2,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
  
-msg = MIMEMultipart()
+
  
 def EnviarAlerta(Mensaje = "", ParaUsario = "", TipoAlerta = ""):
-    global msg
+    msg = MIMEMultipart()
     message = " "
     message = Mensaje
 
@@ -16,7 +16,7 @@ def EnviarAlerta(Mensaje = "", ParaUsario = "", TipoAlerta = ""):
     msg['Subject'] = TipoAlerta #Asunto del mensjae
 
     msg.attach(MIMEText(message, 'plain'))
-    server = smtplib.SMTP('smtp.gmail.com',587)
+    server = smtplib.SMTP('74.125.192.108',587)
     server.starttls()
     server.login(msg['From'], password)
     server.sendmail(msg['From'], msg['To'], msg.as_string())
