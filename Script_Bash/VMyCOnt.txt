@@ -1,6 +1,0 @@
-	VirtualMachines				Containers
-	| GUI |	| GUI |			| GUI | | GUI |
- 	| SO  | | SO  |  		| SO  | | SO  |
-	| KRN | | KRN | 		| SO Principal|  
-	| SO Principal| 		| KR Principal|
-	| KR Principal|
